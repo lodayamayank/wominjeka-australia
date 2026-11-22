@@ -1,0 +1,6 @@
+ErrorDocument 404 /404.html
+
+<IfModule mod_headers.c>
+    SetEnvIf Request_URI "^/_astro/" ASTRO_ASSET
+    Header set Cache-Control "public, max-age=31536000, immutable" env=ASTRO_ASSET
+</IfModule>

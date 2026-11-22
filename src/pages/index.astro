@@ -1,16 +1,18 @@
 ---
+import Base from '../layouts/Base.astro';
+import { decode, getPages } from '../lib/wp.js';
+
+const pages = await getPages();
+const home = pages.find(({ slug }) => slug === 'home');
+const links = pages.filter(({ slug }) => slug && !['home', 'blog', '404'].includes(slug));
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<Base title="Wominjeka Australia">
+	<h1>{decode(home?.title?.rendered) || 'Wominjeka Australia'}</h1>
+	{home?.content?.rendered && <Fragment set:html={home.content.rendered} />}
+	{links.length > 0 && (
+		<ul>
+			{links.map((page) => <li><a href={`/${page.slug}/`}>{decode(page.title?.rendered) || page.slug}</a></li>)}
+		</ul>
+	)}
+</Base>

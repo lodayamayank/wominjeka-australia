@@ -1,0 +1,23 @@
+---
+import Base from '../layouts/Base.astro';
+import { decode, featuredImage, getPages } from '../lib/wp.js';
+
+export async function getStaticPaths() {
+	const pages = await getPages();
+	return pages
+		.filter(({ slug }) => slug && !['blog', '404'].includes(slug))
+		.map((page) => ({ params: { slug: decodeURIComponent(page.slug) }, props: { page } }));
+}
+
+const { page } = Astro.props;
+const title = decode(page.title?.rendered) || page.slug;
+const image = featuredImage(page);
+---
+
+<Base title={title}>
+	<article>
+		<h1>{title}</h1>
+		{image && <img src={image.src} alt={image.alt} />}
+		<Fragment set:html={page.content?.rendered ?? ''} />
+	</article>
+</Base>

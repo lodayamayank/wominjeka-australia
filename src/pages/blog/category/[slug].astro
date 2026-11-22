@@ -1,0 +1,26 @@
+---
+import Base from '../../../layouts/Base.astro';
+import { decode, getCategories, getPosts } from '../../../lib/wp.js';
+
+export async function getStaticPaths() {
+	const [categories, posts] = await Promise.all([getCategories(), getPosts()]);
+	return categories
+		.filter(({ slug }) => slug)
+		.map((category) => ({
+			params: { slug: decodeURIComponent(category.slug) },
+			props: { category, posts: posts.filter((post) => post.categories?.includes(category.id)) },
+		}));
+}
+
+const { category, posts } = Astro.props;
+const title = decode(category.name) || category.slug;
+---
+
+<Base title={title}>
+	<h1>{title}</h1>
+	{posts.length ? (
+		<ul>
+			{posts.map((post) => <li><a href={`/blog/${post.slug}/`}>{decode(post.title?.rendered) || post.slug}</a></li>)}
+		</ul>
+	) : <p>No posts in this category yet.</p>}
+</Base>
